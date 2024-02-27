@@ -11,11 +11,6 @@ export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
     async onMessage(data: OrderCancelledEvent['data'], message: Message) {
         const { id, version } = data
 
-        const orders = await Order.find({})
-        console.log('ID: ', id)
-        console.log('VERSION: ', version)
-        console.log('TUTTI GLI ORDINI DI PAYMENTS: ', orders)
-
         const order = await Order.findOne({
             _id: id,
             version: version - 1

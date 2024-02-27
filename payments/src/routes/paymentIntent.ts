@@ -1,11 +1,10 @@
 import { NotFoundError, requireAuth, validateRequest } from '@riccardonuzz-org/common';
 import { Router, Response, Request } from 'express';
 import { body } from 'express-validator';
-import stripe from 'stripe';
+import { stripe } from './../stripe';
 import { Order } from '../models/order';
 
 const router = Router()
-const stripeInstance = new stripe('sk_test_51OmJZ4F8RJE7Sy1NYabTUE6bvdfcwVRbh4eD1sTgSxfjq3pLbCG32HPmHoLE4JpQc1jsOtkgwqpPZMvmHutaKveK009Hi405yv');
 
 
 router.post(
@@ -29,7 +28,7 @@ router.post(
         }
 
         // Create a PaymentIntent with the order amount and currency
-        const paymentIntent = await stripeInstance.paymentIntents.create({
+        const paymentIntent = await stripe.paymentIntents.create({
             amount: order.price * 100,
             currency: "eur",
             // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
