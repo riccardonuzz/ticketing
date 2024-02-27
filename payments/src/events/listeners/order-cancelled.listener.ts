@@ -1,0 +1,34 @@
+import { Listener, OrderCancelledEvent, Subjects, OrderStatus } from "@riccardonuzz-org/common";
+import { Message } from "node-nats-streaming";
+import { Order } from "../../models/order";
+import { queueGroupName } from "./queue-group-name";
+
+
+export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
+    subject: Subjects.OrderCancelled = Subjects.OrderCancelled
+    queueGroupName: string = queueGroupName
+
+    async onMessage(data: OrderCancelledEvent['data'], message: Message) {
+        const { id, version } = data
+
+        const orders = await Order.find({})
+        console.log('ID: ', id)
+        console.log('VERSION: ', version)
+        console.log('TUTTI GLI ORDINI DI PAYMENTS: ', orders)
+
+        const order = await Order.findOne({
+            _id: id,
+            version: version - 1
+        })
+
+        if (!order) {
+            throw new Error('Order not found')
+        }
+
+        order.set({ status: OrderStatus.Cancelled })
+        await order.save()
+
+        message.ack()
+    }
+
+}
